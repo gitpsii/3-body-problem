@@ -50,7 +50,7 @@ function step(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt)
     return v1, v2, v3, r1, r2, r3
 end
 
-function test_simulation(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt, t)
+function simulation(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt, t)
     r1_history = Vector{Vector{Float64}}()
     r2_history = Vector{Vector{Float64}}()
     r3_history = Vector{Vector{Float64}}()

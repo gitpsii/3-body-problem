@@ -1,3 +1,6 @@
+using Plots
+using LinearAlgebra
+
 function gravitational_acceleration(G, m1, m2, m3, r1, r2, r3)
      d1 = r2 - r1
      d2 = r3 - r1
@@ -47,9 +50,118 @@ function step(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt)
     return v1, v2, v3, r1, r2, r3
 end
 
-function test_simulation(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt)
-    for i in 1:10
+function test_simulation(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt, t)
+    r1_history = Vector{Vector{Float64}}()
+    r2_history = Vector{Vector{Float64}}()
+    r3_history = Vector{Vector{Float64}}()
+
+    push!(r1_history, r1)
+    push!(r2_history, r2)
+    push!(r3_history, r3)
+
+    for i in 1:t
         v1, v2, v3, r1, r2, r3 = step(G, m1, m2, m3, v1, v2, v3, r1, r2, r3, dt)
-        println(i, " ", r1)
+
+        push!(r1_history, r1)
+        push!(r2_history, r2)
+        push!(r3_history, r3)
     end
+
+    return r1_history, r2_history, r3_history
+end
+
+function trajectory(r1_history, r2_history, r3_history)
+    x1 = [r[1] for r in r1_history]
+    y1 = [r[2] for r in r1_history]
+
+    x2 = [r[1] for r in r2_history]
+    y2 = [r[2] for r in r2_history]
+
+    x3 = [r[1] for r in r3_history]
+    y3 = [r[2] for r in r3_history]
+
+    plot(x1, y1, label="Body 1")
+    plot!(x2, y2, label="Body 2")
+    plot!(x3, y3, label="Body 3")
+end
+
+function animate_trajectory(r1_history, r2_history, r3_history)
+
+    anim = @animate for i in 1:5:length(r1_history)
+
+        x1 = [r[1] for r in r1_history[1:i]]
+        y1 = [r[2] for r in r1_history[1:i]]
+
+        x2 = [r[1] for r in r2_history[1:i]]
+        y2 = [r[2] for r in r2_history[1:i]]
+
+        x3 = [r[1] for r in r3_history[1:i]]
+        y3 = [r[2] for r in r3_history[1:i]]
+
+# Black Canvas
+
+        plot(
+            x1,
+            y1,
+            color=:royalblue,
+            linewidth=2,
+            label=false,
+            background_color=:black,
+            foreground_color=:white,
+            grid=false,
+            axis=false,
+            aspect_ratio=:equal,
+            xlims=(-2, 2),
+            ylims=(-2, 2),
+            size=(1000, 800)
+        )
+
+
+        plot!(
+            x2,
+            y2,
+            color=:orange,
+            linewidth=2,
+            label=false
+        )
+
+        plot!(
+            x3,
+            y3,
+            color=:white,
+            linewidth=2,
+            label=false
+        )
+
+
+        scatter!(
+            [x1[end]],
+            [y1[end]],
+            color=:royalblue,
+            markersize=9,
+            markerstrokewidth=0,
+            label=false
+        )
+
+        scatter!(
+            [x2[end]],
+            [y2[end]],
+            color=:orange,
+            markersize=9,
+            markerstrokewidth=0,
+            label=false
+        )
+
+        scatter!(
+            [x3[end]],
+            [y3[end]],
+            color=:white,
+            markersize=9,
+            markerstrokewidth=0,
+            label=false
+        )
+
+    end
+    gif(anim, "three_body.gif", fps=30)
+
 end

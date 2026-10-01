@@ -1,116 +1,35 @@
-# 3-body-problem
+# Three-Body Problem
 
-# Three-Body Problem — Numerical Simulation in Julia
+A numerical simulation of the classical three-body problem using Julia and Newtonian gravity.
 
-A numerical simulation of the classical **three-body problem** using Newtonian gravity, implemented in **Julia**.
+The three-body problem describes the motion of three bodies that interact with each other through gravity. Unlike the two-body problem, there is no general closed-form solution for the three-body case, so numerical methods are used to calculate the motion of the bodies over time.
 
-The project explores how the positions and velocities of three mutually interacting bodies evolve with time under their gravitational forces. Because the general three-body problem does not have a closed-form analytical solution, numerical integration is used to calculate the system's evolution and generate the resulting trajectories.
+This project solves the equations of motion numerically and stores the position of each body at every time step. The stored positions are then used to plot the trajectories of the three bodies.
 
-## Overview
+## Physics
 
-The three-body problem asks:
+The acceleration of each body is calculated from the gravitational interaction with the other two bodies.
 
-> Given three bodies interacting only through gravity, how do their positions and velocities evolve with time?
-
-For two bodies, Newton's equations can be solved analytically for the familiar Keplerian orbits. With three mutually interacting bodies, however, the equations become coupled and, in general, do not admit a simple closed-form solution.
-
-This makes the problem a useful example of **classical mechanics, numerical methods, and computational physics**.
-
-In this project, each body experiences the gravitational force produced by the other two bodies:
-
-$$
-\mathbf{F}_{ij}
-=
-G\frac{m_i m_j}{|\mathbf{r}_j-\mathbf{r}_i|^3}
-(\mathbf{r}_j-\mathbf{r}_i)
-$$
-
-and Newton's second law gives
-
-$$
-m_i\frac{d^2\mathbf{r}_i}{dt^2}
-=
-\sum_{j\neq i}\mathbf{F}_{ij}.
-$$
-
-The resulting coupled differential equations are integrated numerically to obtain the positions and velocities at successive time steps.
-
-## Features
-
-* Simulation of three gravitationally interacting bodies
-* Two-dimensional motion
-* User-defined masses, initial positions and velocities
-* Numerical time integration
-* Storage of position histories for all three bodies
-* Visualization of orbital trajectories
-* Modular physics and simulation code
-* Implemented entirely in Julia
-
-## Project Structure
-
-```text
-three-body-problem/
-│
-├── src/
-│   └── physics.jl
-│
-├── test/
-│   └── ...
-│
-├── Project.toml
-├── Manifest.toml
-└── README.md
-```
-
-### `src/physics.jl`
-
-Contains the core physics of the simulation, including the calculation of gravitational accelerations and the numerical evolution of the system.
-
-### `Project.toml`
-
-Defines the Julia project environment and its dependencies.
-
-### `Manifest.toml`
-
-Stores the exact package versions used by the Julia environment.
-
-## How the Simulation Works
-
-At every time step, the simulation performs the following process:
-
-1. Calculate the separation between each pair of bodies.
-2. Calculate the gravitational acceleration produced by the other two bodies.
-3. Update the velocities.
-4. Update the positions.
-5. Store the new positions.
-6. Repeat for the required number of time steps.
-
-For body \(1\), for example,
+For body 1,
 
 $$
 \mathbf{a}_1 =
-Gm_2
-\frac{\mathbf{r}_2-\mathbf{r}_1}
+Gm_2\frac{\mathbf{r}_2-\mathbf{r}_1}
 {|\mathbf{r}_2-\mathbf{r}_1|^3}
 +
-Gm_3
-\frac{\mathbf{r}_3-\mathbf{r}_1}
+Gm_3\frac{\mathbf{r}_3-\mathbf{r}_1}
 {|\mathbf{r}_3-\mathbf{r}_1|^3}.
 $$
 
-The equations for the other two bodies are obtained in the same way.
+The same calculation is performed for the other two bodies.
 
-The stored position histories can then be used to plot
+The equations are then integrated step by step to obtain the new positions and velocities.
 
-$$
-x_i(t),\qquad y_i(t)
-$$
+The simulation uses dimensionless units, which makes it easier to experiment with different initial conditions without tying the calculation to a particular astronomical system.
 
-or, more directly, the trajectories in the \(x-y\) plane.
+## Simulation
 
-## Example Initial Conditions
-
-A simple equal-mass configuration can be used to demonstrate the dynamics:
+The initial conditions specify the mass, position and velocity of each body. For example:
 
 ```julia
 G = 1.0
@@ -128,20 +47,65 @@ v2 = [1.0, 0.0]
 v3 = [0.0, 0.0]
 ```
 
-These values are given in **dimensionless units**, so the simulation can focus on the dynamics rather than a particular physical astronomical system.
+The simulation is run for a chosen number of time steps with a specified time step \(dt\).
 
-Different initial conditions can produce qualitatively different behaviour, including bounded motion, complicated trajectories, close encounters, and unstable configurations.
+At each step:
 
-## Running the Simulation
+1. The gravitational acceleration on each body is calculated.
+2. The velocities are updated.
+3. The positions are updated.
+4. The new positions are stored.
 
-Clone the repository:
+The stored position histories can then be used to reconstruct the complete trajectories.
+
+## Trajectories
+
+The simulation keeps a history of the positions of all three bodies:
+
+```text
+r1_history
+r2_history
+r3_history
+```
+
+These arrays contain the positions at successive time steps and can be plotted to see the resulting motion.
+
+### Example
+
+![Three-body simulation](three_body.gif)
+
+The trajectory depends strongly on the initial positions and velocities. Changing the initial conditions can produce very different types of motion.
+
+## Project Structure
+
+```text
+three-body-problem/
+│
+├── src/
+│   └── physics.jl
+│
+├── test/
+│   └── ...
+│
+├── Project.toml
+├── Manifest.toml
+└── README.md
+```
+
+`physics.jl` contains the main physics and simulation code.
+
+`Project.toml` and `Manifest.toml` define the Julia environment and its dependencies.
+
+## Running
+
+Clone the repository and enter the project directory:
 
 ```bash
-git clone <your-repository-url>
+git clone <repository-url>
 cd three-body-problem
 ```
 
-Activate the Julia environment:
+Start Julia and activate the project environment:
 
 ```julia
 using Pkg
@@ -149,132 +113,22 @@ Pkg.activate(".")
 Pkg.instantiate()
 ```
 
-Then run the simulation from Julia.
-
-For example:
+The simulation can then be run by loading the physics code:
 
 ```julia
 include("src/physics.jl")
 ```
 
-The simulation can then be initialized with the desired gravitational constant, masses, initial velocities, positions, time step, and number of iterations.
+The initial conditions, timestep and simulation length can be changed to experiment with different configurations.
 
-## Trajectories
+## Notes
 
-Rather than storing only the final position of each body, the simulation records the positions at every time step.
+The simulation assumes point masses interacting only through Newtonian gravity. Relativistic effects, collisions and external gravitational fields are not included.
 
-Conceptually, the stored data has the form
-
-```text
-r1_history → positions of body 1
-r2_history → positions of body 2
-r3_history → positions of body 3
-```
-
-This allows the complete trajectory of each body to be reconstructed after the simulation has finished.
-
-For example, plotting
-
-```text
-x-coordinate vs y-coordinate
-```
-
-for each body produces the orbital trajectories generated by the numerical simulation.
-
-## Numerical Considerations
-
-The three-body problem is particularly useful for studying numerical computation because small changes in the initial conditions can lead to substantially different trajectories over sufficiently long times.
-
-The choice of time step is therefore important.
-
-A timestep that is too large can introduce significant numerical error, particularly during close encounters when gravitational accelerations become large.
-
-A smaller timestep generally improves the resolution of the motion, but increases the computational cost.
-
-This project therefore also provides a practical demonstration of the relationship between:
-
-* timestep size,
-* numerical accuracy,
-* computational cost,
-* and long-term stability.
-
-## Physics
-
-The simulation is based on classical Newtonian mechanics:
-
-$$
-\mathbf{F}=m\mathbf{a}
-$$
-
-and Newton's law of universal gravitation:
-
-$$
-F = G\frac{m_1m_2}{r^2}.
-$$
-
-The system is assumed to have:
-
-* point-like bodies,
-* Newtonian gravity,
-* no external forces,
-* no relativistic effects,
-* no collisions or physical body sizes.
-
-The model is therefore appropriate for studying the mathematical dynamics of the system rather than modelling a specific real astronomical system with high physical fidelity.
-
-## What This Project Demonstrates
-
-This project combines several concepts from computational physics:
-
-* Newtonian mechanics
-* Coupled differential equations
-* Numerical integration
-* Vector-based calculations
-* Initial-value problems
-* Numerical stability
-* Chaotic dynamics
-* Data collection and trajectory reconstruction
-* Scientific visualization
-* Julia programming
-
-The main objective is not simply to produce an animation, but to understand how a set of coupled physical equations can be translated into an executable numerical model.
-
-## Future Improvements
-
-Possible extensions include:
-
-* [ ] Add energy conservation monitoring
-* [ ] Add total linear momentum monitoring
-* [ ] Add angular momentum monitoring
-* [ ] Compare different numerical integration methods
-* [ ] Study timestep dependence
-* [ ] Add adaptive timesteps
-* [ ] Add more initial-condition configurations
-* [ ] Generate trajectory animations
-* [ ] Extend the simulation to three spatial dimensions
-* [ ] Investigate known periodic three-body solutions
-* [ ] Study sensitivity to initial conditions
-* [ ] Add automated tests for the force and integration calculations
-
-## Limitations
-
-This is a numerical Newtonian model. It does not account for:
-
-* relativistic corrections,
-* finite body size,
-* collisions,
-* external gravitational fields,
-* numerical regularization during close encounters.
-
-The results should therefore be interpreted as numerical solutions of the idealized Newtonian three-body problem.
+The timestep also affects the numerical result. A timestep that is too large can give inaccurate trajectories, especially when two bodies pass close to each other.
 
 ## References
 
-1. J. D. Murray and J. C. F. McLaughlin, *The Three-Body Problem*.
-2. H. Goldstein, C. Poole and J. Safko, *Classical Mechanics*.
-3. W. H. Press et al., *Numerical Recipes*.
-4. Julia Documentation — https://docs.julialang.org/
-
-## Author
-
-Developed as a computational physics project to explore numerical solutions of coupled gravitational systems using Julia.
+* H. Goldstein, C. Poole and J. Safko, *Classical Mechanics*
+* W. H. Press et al., *Numerical Recipes*
+* [Julia Documentation](https://docs.julialang.org/)
